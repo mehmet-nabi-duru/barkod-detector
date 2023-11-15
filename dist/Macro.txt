@@ -1,4 +1,4 @@
-Sub FilterAndCopyDataWithInput()
+Sub FilterAndCopyDataWithHeader()
     Dim wsData As Worksheet, wsBarcodes As Worksheet, wsOutput As Worksheet
     Dim rngData As Range, rngBarcodes As Range, cell As Range
     Dim lastRowData As Long, lastRowBarcodes As Long, outputRow As Long
@@ -23,16 +23,19 @@ Sub FilterAndCopyDataWithInput()
     Set wsOutput = ThisWorkbook.Sheets.Add
     wsOutput.Name = outputSheetName
 
+    ' Copy headers from data sheet to output sheet
+    wsData.Rows(1).Copy Destination:=wsOutput.Rows(1)
+
     ' Find the last row of data and barcodes
     lastRowData = wsData.Cells(wsData.Rows.Count, "A").End(xlUp).Row ' Assuming barcodes are in Column A of Data Sheet
     lastRowBarcodes = wsBarcodes.Cells(wsBarcodes.Rows.Count, "A").End(xlUp).Row ' Assuming barcodes are in Column A of Barcodes Sheet
 
     ' Define the ranges
-    Set rngData = wsData.Range("A1:A" & lastRowData) ' Adjust the range as per your data columns
+    Set rngData = wsData.Range("A2:A" & lastRowData) ' Adjust the range as per your data columns
     Set rngBarcodes = wsBarcodes.Range("A1:A" & lastRowBarcodes)
 
     ' Initialize the row counter for output
-    outputRow = 1
+    outputRow = 2 ' Start from row 2 because headers are already copied
 
     ' Loop through each cell in the data range
     For Each cell In rngData
