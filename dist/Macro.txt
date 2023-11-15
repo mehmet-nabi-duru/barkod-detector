@@ -1,0 +1,45 @@
+Sub FilterAndCopyDataWithInput()
+    Dim wsData As Worksheet, wsBarcodes As Worksheet, wsOutput As Worksheet
+    Dim rngData As Range, rngBarcodes As Range, cell As Range
+    Dim lastRowData As Long, lastRowBarcodes As Long, outputRow As Long
+    Dim dataSheetName As String, barcodesSheetName As String, outputSheetName As String
+
+    ' Prompt user for the sheet names
+    dataSheetName = InputBox("Enter the name of the Data Sheet:")
+    barcodesSheetName = InputBox("Enter the name of the Barcodes Sheet:")
+    outputSheetName = InputBox("Enter the name for the new Output Sheet:")
+
+    ' Validate input
+    On Error Resume Next
+    Set wsData = ThisWorkbook.Sheets(dataSheetName)
+    Set wsBarcodes = ThisWorkbook.Sheets(barcodesSheetName)
+    If wsData Is Nothing Or wsBarcodes Is Nothing Then
+        MsgBox "Sheet name(s) are incorrect. Please run the macro again with correct names.", vbExclamation
+        Exit Sub
+    End If
+    On Error GoTo 0
+
+    ' Create a new sheet for the output
+    Set wsOutput = ThisWorkbook.Sheets.Add
+    wsOutput.Name = outputSheetName
+
+    ' Find the last row of data and barcodes
+    lastRowData = wsData.Cells(wsData.Rows.Count, "A").End(xlUp).Row ' Assuming barcodes are in Column A of Data Sheet
+    lastRowBarcodes = wsBarcodes.Cells(wsBarcodes.Rows.Count, "A").End(xlUp).Row ' Assuming barcodes are in Column A of Barcodes Sheet
+
+    ' Define the ranges
+    Set rngData = wsData.Range("A1:A" & lastRowData) ' Adjust the range as per your data columns
+    Set rngBarcodes = wsBarcodes.Range("A1:A" & lastRowBarcodes)
+
+    ' Initialize the row counter for output
+    outputRow = 1
+
+    ' Loop through each cell in the data range
+    For Each cell In rngData
+        If Not IsError(Application.Match(cell.Value, rngBarcodes, 0)) Then
+            ' If match found, copy the entire row to the output sheet
+            cell.EntireRow.Copy Destination:=wsOutput.Range("A" & outputRow)
+            outputRow = outputRow + 1
+        End If
+    Next cell
+End Sub
